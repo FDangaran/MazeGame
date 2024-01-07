@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { generateMaze, solve } from "./util";
 import "./style.css";
+import React from 'react';
 
 function App() {
   const [gameId, setGameId] = useState(1);
   const [status, setStatus] = useState("playing");
 
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(5);
   const [cheatMode, setCheatMode] = useState(false);
 
   const [userPosition, setUserPosition] = useState([0, 0]);
@@ -82,40 +83,41 @@ function App() {
     }
   };
 
-  const handleUpdateSettings = () => {
-    setSize(Number(document.querySelector("input[name='mazeSize']").value));
+  /**const handleUpdateSettings = () => {
+    setSize((prevSize) => Math.min(prevSize + 10, 40));;
     setUserPosition([0, 0]);
     setStatus("playing");
     setGameId(gameId + 1);
-  };
+  };*/
+
+  const handleUpdateSettings = () => {
+      if (size === 20) {
+        setStatus("won");
+        alert("Congratulations! You've completed all levels! Press to try again.");
+        setSize(5);
+        setGameId(1);
+      }
+  
+      setSize((prevSize) => (prevSize === 20 ? 5 : prevSize + 5));
+      setUserPosition([0, 0]);
+      setStatus("playing");
+      setGameId((prevId) => prevId + 1);
+    };
+  
+
+  const content = gameId === 1 ? (
+    <div>
+      <p>TUTORIAL</p>
+      <p>Game Controls</p>
+      <p>W,S,A,D or UP, LEFT, RIGHT, BOTTOM ARROW</p>
+    </div>
+  ) : (
+    <p>Level {gameId - 1}</p>
+  );
 
   return (
-    <div className="App" onKeyDown={handleMove} tabIndex={-1}>
-      <div className="setting">
-        <label htmlFor="mazeSize">Size of maze (5-40):</label>
-        <input
-          type="number"
-          name="mazeSize"
-          min="5"
-          max="40"
-          defaultValue="10"
-        />
-      </div>
-      <div className="setting">
-        <button onClick={handleUpdateSettings}>
-          Restart game with new settings
-        </button>
-      </div>
-      <p>Use WSAD or Arrow Keys to move</p>
-      <div>
-        <label htmlFor="cheatMode">Cheat mode</label>
-        <input
-          type="checkbox"
-          name="cheatMode"
-          onChange={(e) => setCheatMode(e.target.checked)}
-        />
-      </div>
-
+   <div className="App" onKeyDown={handleMove} tabIndex={-1}>
+      {content}
       <table id="maze">
         <tbody>
           {maze.map((row, i) => (
@@ -132,11 +134,27 @@ function App() {
 
       {status !== "playing" && (
         <div className="info" onClick={handleUpdateSettings}>
-          <p>You won (Click here to play again)</p>
+          <p>You won!</p>
+          {gameId !== 4 && (
+          <>
+            <p>LEVEL {gameId} UNLOCKED - Click here to Continue</p>
+          </>
+          )}
         </div>
       )}
     </div>
-  );
-}
+  )};
+
+/**
+ * for demonstration purposes
+ <div>
+  <label htmlFor="cheatMode">Cheat mode</label>
+  <input
+    type="checkbox"
+    name="cheatMode"
+    onChange={(e) => setCheatMode(e.target.checked)}
+  />
+ </div>
+ */
 
 export default App
